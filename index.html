@@ -63,12 +63,52 @@
     })();
   </script>
   <script>
-    // Offline support: sw.js (written by scripts/build_web.sh) keeps the app's files. A new build
-    // is cached in the background and used from the next time the app is opened, never by
-    // reloading in the middle of work.
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});
-    }
+    // Offline support: sw.js (written by scripts/build_web.sh) keeps the app's files. A Home
+    // Screen app or a Safari tab is rarely restarted, so the page looks for a new build on every
+    // return to the app and every 30 minutes. A new build downloads in the background; once it is
+    // ready, the app reloads by itself if nobody has touched it yet since it opened, otherwise it
+    // shows a bar with an update button, so a sale in progress is never cut off.
+    (function () {
+      if (!('serviceWorker' in navigator)) return;
+      var opened = Date.now();
+      var touched = false;
+      var hadWorker = !!navigator.serviceWorker.controller;
+      ['pointerdown', 'keydown'].forEach(function (type) {
+        addEventListener(type, function () { touched = true; }, { capture: true, passive: true });
+      });
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
+        var check = function () { reg.update().catch(function () {}); };
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible') check();
+        });
+        setInterval(check, 30 * 60 * 1000);
+      }).catch(function () {});
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        // The very first visit installs the same build that is already running: nothing to do.
+        if (!hadWorker) { hadWorker = true; return; }
+        if (!touched && Date.now() - opened < 20000) { location.reload(); return; }
+        if (document.getElementById('sg-update')) return;
+        var bar = document.createElement('div');
+        bar.id = 'sg-update';
+        bar.setAttribute('dir', 'rtl');
+        bar.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:2147483647;display:flex;' +
+          'align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;' +
+          'background:#526B56;color:#fff;font:600 16px/1.4 system-ui,-apple-system,sans-serif;' +
+          'box-shadow:0 2px 8px rgba(0,0,0,.25)';
+        var text = document.createElement('span');
+        text.style.flex = '1';
+        text.textContent = 'نسخة جديدة من التطبيق جاهزة';
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'تحديث الآن';
+        button.style.cssText = 'border:0;border-radius:999px;padding:10px 18px;background:#fff;' +
+          'color:#526B56;font:700 16px system-ui,-apple-system,sans-serif;cursor:pointer';
+        button.addEventListener('click', function () { location.reload(); });
+        bar.appendChild(text);
+        bar.appendChild(button);
+        document.body.appendChild(bar);
+      });
+    })();
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
