@@ -45,7 +45,9 @@ self.addEventListener('fetch', (event) => {
   const scope = new URL(self.registration.scope);
   if (url.origin === scope.origin && url.pathname.startsWith(scope.pathname)) {
     const rel = url.pathname.slice(scope.pathname.length);
-    const key = request.mode === 'navigate' || rel === '' || rel === 'index.html' ? './' : rel;
+    // Only this build's own page and files: a nested app (the demo under /demo/) has its own
+    // worker, and this one must never answer for it.
+    const key = rel === '' || rel === 'index.html' ? './' : rel;
     const lazy = LAZY.includes(key);
     if (key !== './' && !lazy && !FILES.includes(key)) return;
     event.respondWith(
