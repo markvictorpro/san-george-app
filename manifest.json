@@ -1,0 +1,37 @@
+{
+  "name": "San George",
+  "short_name": "San George",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F4EFE8",
+  "theme_color": "#526B56",
+  "description": "أسعار ومخزون محل San George",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/Icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/Icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "lang": "ar",
+  "dir": "rtl"
+}
