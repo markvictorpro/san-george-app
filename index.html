@@ -62,6 +62,14 @@
       };
     })();
   </script>
+  <script>
+    // Offline support: sw.js (written by scripts/build_web.sh) keeps the app's files. A new build
+    // is cached in the background and used from the next time the app is opened, never by
+    // reloading in the middle of work.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});
+    }
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
