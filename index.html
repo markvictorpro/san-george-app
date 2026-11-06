@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -43,6 +43,25 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
+  <script>
+    // iPhone Safari only shows live camera video inside the page when the video element is
+    // marked playsinline (and muted). The barcode scanner plugin creates its video element
+    // without these, which leaves an empty screen, so set them just before any video plays.
+    (function () {
+      var play = HTMLMediaElement.prototype.play;
+      HTMLMediaElement.prototype.play = function () {
+        if (this instanceof HTMLVideoElement) {
+          this.muted = true;
+          this.playsInline = true;
+          this.setAttribute('muted', '');
+          this.setAttribute('playsinline', '');
+          this.setAttribute('webkit-playsinline', '');
+          this.setAttribute('autoplay', '');
+        }
+        return play.apply(this, arguments);
+      };
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
